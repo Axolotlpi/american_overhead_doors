@@ -39,14 +39,21 @@ const REVIEW_QUERY = `*[_type == "review"] | order(orderRank) {
   reviewerName
 }`
 
+const CONTACT_QUERY = `*[_type == "contactDetails" && _id == "contactDetails"][0] {
+  phone,
+  email
+}`
+
 function App() {
   const [heroData, setHeroData] = useState(null)
   const [aboutData, setAboutData] = useState(null)
   const [servicesData, setServicesData] = useState([])
   const [galleryImages, setGalleryImages] = useState([])
   const [reviews, setReviews] = useState([])
+  const [contactData, setContactData] = useState(null)
 
   useEffect(() => {
+    client.fetch(CONTACT_QUERY).then(setContactData).catch(console.error)
     client.fetch(HERO_QUERY).then(setHeroData).catch(console.error)
 
     client.fetch(ABOUT_QUERY).then(setAboutData).catch(console.error)
@@ -85,7 +92,7 @@ function App() {
       <Services services={servicesData} />
       <Gallery galleries={galleryImages} />
       <Reviews reviews={reviews} />
-      <Footer />
+      <Footer contactData={contactData} />
     </div>
   )
 }

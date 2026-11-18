@@ -1,58 +1,80 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 const DESKTOP_PER_PAGE = 3;
+const EMPTY_REVIEWS = [];
 
-export default function Reviews({ reviews = [] }) {
+export default function Reviews({ reviews = EMPTY_REVIEWS }) {
   const [desktopPage, setDesktopPage] = useState(0);
   const [mobileIndex, setMobileIndex] = useState(0);
   const [desktopAnim, setDesktopAnim] = useState('idle');
   const [mobileAnim, setMobileAnim] = useState('idle');
-  const desktopDir = useRef('forward');
-  const mobileDir = useRef('forward');
-  const prevDesktopPage = useRef(0);
-  const prevMobileIndex = useRef(0);
+  const [desktopDir, setDesktopDir] = useState('forward');
+  const [mobileDir, setMobileDir] = useState('forward');
+  const [prevDesktopPage, setPrevDesktopPage] = useState(0);
+  const [prevMobileIndex, setPrevMobileIndex] = useState(0);
+
+  const [previousReviews, setPreviousReviews] = useState(reviews);
+  if (previousReviews !== reviews) {
+    setPreviousReviews(reviews);
+    setDesktopPage(0);
+    setMobileIndex(0);
+    setDesktopAnim('idle');
+    setMobileAnim('idle');
+  }
+
+  useEffect(() => {
+    if (desktopAnim === 'idle') return;
+    const timer = setTimeout(() => setDesktopAnim('idle'), 700);
+    return () => clearTimeout(timer);
+  }, [desktopAnim]);
+
+  useEffect(() => {
+    if (mobileAnim === 'idle') return;
+    const timer = setTimeout(() => setMobileAnim('idle'), 700);
+    return () => clearTimeout(timer);
+  }, [mobileAnim]);
 
   // Desktop pagination (groups of 3)
   const totalDesktopPages = Math.ceil(reviews.length / DESKTOP_PER_PAGE);
   const desktopStart = desktopPage * DESKTOP_PER_PAGE;
   const desktopSlice = reviews.slice(desktopStart, desktopStart + DESKTOP_PER_PAGE);
 
-  const desktopPrev = useCallback(() => {
+  const desktopPrev = () => {
     if (desktopAnim !== 'idle' || desktopPage === 0) return;
-    desktopDir.current = 'back';
-    prevDesktopPage.current = desktopPage;
+    setDesktopDir('back');
+    setPrevDesktopPage(desktopPage);
     setDesktopPage(desktopPage - 1);
     setDesktopAnim('sliding');
-  }, [desktopAnim, desktopPage]);
+  };
 
-  const desktopNext = useCallback(() => {
+  const desktopNext = () => {
     if (desktopAnim !== 'idle' || desktopPage === totalDesktopPages - 1) return;
-    desktopDir.current = 'forward';
-    prevDesktopPage.current = desktopPage;
+    setDesktopDir('forward');
+    setPrevDesktopPage(desktopPage);
     setDesktopPage(desktopPage + 1);
     setDesktopAnim('sliding');
-  }, [desktopAnim, desktopPage, totalDesktopPages]);
+  };
 
   const onDesktopAnimEnd = () => {
     setDesktopAnim('idle');
   };
 
   // Mobile pagination (1 at a time)
-  const mobilePrev = useCallback(() => {
+  const mobilePrev = () => {
     if (mobileAnim !== 'idle' || mobileIndex === 0) return;
-    mobileDir.current = 'back';
-    prevMobileIndex.current = mobileIndex;
+    setMobileDir('back');
+    setPrevMobileIndex(mobileIndex);
     setMobileIndex(mobileIndex - 1);
     setMobileAnim('sliding');
-  }, [mobileAnim, mobileIndex]);
+  };
 
-  const mobileNext = useCallback(() => {
+  const mobileNext = () => {
     if (mobileAnim !== 'idle' || mobileIndex === reviews.length - 1) return;
-    mobileDir.current = 'forward';
-    prevMobileIndex.current = mobileIndex;
+    setMobileDir('forward');
+    setPrevMobileIndex(mobileIndex);
     setMobileIndex(mobileIndex + 1);
     setMobileAnim('sliding');
-  }, [mobileAnim, mobileIndex, reviews.length]);
+  };
 
   const onMobileAnimEnd = () => {
     setMobileAnim('idle');
@@ -60,12 +82,12 @@ export default function Reviews({ reviews = [] }) {
 
   const getSlideClass = (anim, dir) => {
     if (anim !== 'sliding') return '';
-    return dir.current === 'forward' ? 'review-slide-in-right' : 'review-slide-in-left';
+    return dir === 'forward' ? 'review-slide-in-right' : 'review-slide-in-left';
   };
 
   const getOutSlideClass = (anim, dir) => {
     if (anim !== 'sliding') return '';
-    return dir.current === 'forward' ? 'review-slide-out-left' : 'review-slide-out-right';
+    return dir === 'forward' ? 'review-slide-out-left' : 'review-slide-out-right';
   };
 
   if (reviews.length === 0) return null;
@@ -184,7 +206,7 @@ export default function Reviews({ reviews = [] }) {
         <div style={{ overflow: 'hidden', position: 'relative' }}>
           {/* Outgoing cards */}
           {desktopAnim === 'sliding' && (() => {
-            const prevStart = prevDesktopPage.current * DESKTOP_PER_PAGE;
+            const prevStart = prevDesktopPage * DESKTOP_PER_PAGE;
             const prevSlice = reviews.slice(prevStart, prevStart + DESKTOP_PER_PAGE);
             return (
               <div
@@ -232,8 +254,8 @@ export default function Reviews({ reviews = [] }) {
               className={`review-card ${getOutSlideClass(mobileAnim, mobileDir)}`}
               style={{ ...cardStyle, position: 'absolute', inset: 0, zIndex: 1 }}
             >
-              <p style={quoteStyle}>&ldquo;{reviews[prevMobileIndex.current]?.text}&rdquo;</p>
-              <p style={nameStyle}>&mdash; {reviews[prevMobileIndex.current]?.name}</p>
+              <p style={quoteStyle}>&ldquo;{reviews[prevMobileIndex]?.text}&rdquo;</p>
+              <p style={nameStyle}>&mdash; {reviews[prevMobileIndex]?.name}</p>
             </div>
           )}
           {/* Incoming card */}

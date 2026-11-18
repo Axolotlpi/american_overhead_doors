@@ -3,7 +3,7 @@ import {structureTool} from 'sanity/structure'
 import {orderableDocumentListDeskItem} from '@sanity/orderable-document-list'
 import {schemaTypes} from './schemaTypes'
 
-const SINGLETONS = new Set(['hero', 'aboutUs', 'siteServices', 'siteGallery'])
+const SINGLETONS = new Set(['hero', 'aboutUs', 'siteServices', 'siteGallery', 'contactDetails'])
 
 export default defineConfig({
   name: 'default',
@@ -47,6 +47,15 @@ export default defineConfig({
                   .schemaType('siteGallery')
                   .documentId('siteGallery')
                   .title('Work Gallery'),
+              ),
+            S.listItem()
+              .title('Contact Details')
+              .id('contactDetails')
+              .child(
+                S.document()
+                  .schemaType('contactDetails')
+                  .documentId('contactDetails')
+                  .title('Contact Details'),
               ),
             S.divider(),
             orderableDocumentListDeskItem({type: 'review', title: 'Reviews', S, context}),
