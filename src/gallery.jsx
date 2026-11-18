@@ -1,19 +1,33 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
-export default function Gallery({ galleries = [] }) {
+const EMPTY_GALLERIES = [];
+
+export default function Gallery({ galleries = EMPTY_GALLERIES }) {
   const [page, setPage] = useState(0);
   const [animState, setAnimState] = useState('idle'); // idle | cover | reveal
   const pendingPage = useRef(null);
-  const direction = useRef('forward'); // 'forward' | 'back'
+  const [direction, setDirection] = useState('forward');
   const coveredCount = useRef(0);
   const revealedCount = useRef(0);
   const totalPages = Math.max(1, galleries.length);
 
-  // Reset page when galleries change
-  useEffect(() => {
+  const [previousGalleries, setPreviousGalleries] = useState(galleries);
+  // Adjust this component's state before children render stale pages.
+  if (previousGalleries !== galleries) {
+    setPreviousGalleries(galleries);
     setPage(0);
     setAnimState('idle');
-  }, [galleries.length]);
+  }
+
+  // CSS events may be absent in background tabs or with reduced motion.
+  useEffect(() => {
+    if (animState === 'idle') return;
+    const timer = setTimeout(() => {
+      if (animState === 'cover') setPage(pendingPage.current);
+      setAnimState('idle');
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [animState]);
 
   const currentImages = galleries[page]?.images || [];
   const imageCount = currentImages.length;
@@ -24,7 +38,7 @@ export default function Gallery({ galleries = [] }) {
       if (nextPage < 0 || nextPage >= totalPages) return;
 
       pendingPage.current = nextPage;
-      direction.current = nextPage > page ? 'forward' : 'back';
+      setDirection(nextPage > page ? 'forward' : 'back');
       coveredCount.current = 0;
       revealedCount.current = 0;
       setAnimState('cover');
@@ -47,6 +61,8 @@ export default function Gallery({ galleries = [] }) {
       setAnimState('idle');
     }
   };
+
+  if (galleries.length === 0) return null;
 
   return (
     <section
@@ -109,8 +125,8 @@ export default function Gallery({ galleries = [] }) {
                 <div
                   className={
                     animState === 'cover'
-                      ? (direction.current === 'forward' ? 'gallery-curtain-in' : 'gallery-curtain-in-reverse')
-                      : (direction.current === 'forward' ? 'gallery-curtain-out' : 'gallery-curtain-out-reverse')
+                      ? (direction === 'forward' ? 'gallery-curtain-in' : 'gallery-curtain-in-reverse')
+                      : (direction === 'forward' ? 'gallery-curtain-out' : 'gallery-curtain-out-reverse')
                   }
                   onAnimationEnd={animState === 'cover' ? handleSingleCoverDone : handleSingleRevealDone}
                   style={{

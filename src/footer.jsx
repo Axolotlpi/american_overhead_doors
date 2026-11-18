@@ -1,8 +1,11 @@
 import logo from './assets/Logo 3.svg';
 
-export default function Footer() {
+export default function Footer({ contactData }) {
+  const phone = contactData?.phone?.trim() ?? '';
+  const email = contactData?.email?.trim() ?? '';
   return (
     <footer
+      id="contact"
       className="site-footer"
       style={{
         backgroundColor: '#CDB895',
@@ -59,7 +62,7 @@ export default function Footer() {
             margin: 0,
           }}
         >
-          P: (000)-000-0000
+          {phone && <>P: <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} style={{ color: 'inherit' }}>{phone}</a></>}
         </p>
         <p
           style={{
@@ -70,7 +73,7 @@ export default function Footer() {
             margin: '0.15rem 0 0 0',
           }}
         >
-          E: example@email.com
+          {email && <>E: <a href={`mailto:${email}`} style={{ color: 'inherit' }}>{email}</a></>}
         </p>
         <a
           href="https://american-ovh-doors.sanity.studio/"
