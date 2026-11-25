@@ -86,7 +86,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar contactData={contactData} />
       <Hero heroData={heroData} />
       <AboutUs aboutData={aboutData} />
       <Services services={servicesData} />
