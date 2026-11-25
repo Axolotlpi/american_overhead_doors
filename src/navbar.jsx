@@ -24,7 +24,9 @@ function smoothScrollTo(targetId, duration = 2200) {
   requestAnimationFrame(step);
 }
 
-export default function Navbar() {
+export default function Navbar({ contactData }) {
+  const phone = contactData?.phone?.trim() ?? '';
+  const contactHref = phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : '#contact';
   const [hovered, setHovered] = useState(false);
   const [clicked, setClicked] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -83,7 +85,7 @@ export default function Navbar() {
         {/* Desktop Contact Button */}
         {!isMobile && (
           <a
-            href="#contact"
+            href={contactHref}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => { setHovered(false); setClicked(false); }}
             onMouseDown={() => setClicked(true)}
@@ -130,7 +132,7 @@ export default function Navbar() {
           <a href="#services" onClick={() => { smoothScrollTo('services'); closeMenu(); }} style={{ color: '#002F49', fontFamily: 'Alexandria, sans-serif', fontWeight: 'bold', fontSize: '1.25rem', textDecoration: 'none', letterSpacing: '0.05em' }}>Services</a>
           <a href="#gallery" onClick={() => { smoothScrollTo('gallery'); closeMenu(); }} style={{ color: '#002F49', fontFamily: 'Alexandria, sans-serif', fontWeight: 'bold', fontSize: '1.25rem', textDecoration: 'none', letterSpacing: '0.05em' }}>Our Work</a>
           <a
-            href="#contact"
+            href={contactHref}
             onClick={closeMenu}
             style={{
               backgroundColor: '#002F49',
