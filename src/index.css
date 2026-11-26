@@ -47,6 +47,63 @@ html, body {
   animation: slideUp 0.25s ease forwards;
 }
 
+.about-section {
+  background-color: #C9A87C;
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 5vw, 4rem);
+}
+
+.about-layout {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  max-width: 68rem;
+  margin-inline: auto;
+}
+
+.about-copy {
+  max-width: 58ch;
+  font-family: Alexandria, sans-serif;
+  color: #002F49;
+}
+
+.about-title {
+  margin: 0 0 1.25rem;
+  font-family: Karantina, cursive;
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.about-subheading {
+  margin: 0 0 0.75rem;
+  color: #1a1a1a;
+  font-size: clamp(1.25rem, 2vw, 1.4rem);
+  font-weight: 700;
+}
+
+.about-body {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.about-image {
+  display: block;
+  width: 100%;
+  border-radius: 0.5rem;
+}
+
+@media (min-width: 60rem) {
+  .about-layout:has(> .about-image) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .about-image {
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+}
+
 /* ── Gallery grid ── */
 .gallery-grid {
   height: 100%;
